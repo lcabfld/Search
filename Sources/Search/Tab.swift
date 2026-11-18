@@ -1230,10 +1230,6 @@ final class Tab: ObservableObject, Identifiable {
 
     func startPicking() { web.evaluateInSearch("window.__officeVeil && window.__officeVeil.on()") }
     func stopPicking() { web.evaluateInSearch("window.__officeVeil && window.__officeVeil.off()") }
-    /// One element at a time, or every one like it (Zap's toolbar).
-    func zapMode(all: Bool) {
-        web.evaluateInSearch("window.__officeVeil && window.__officeVeil.mode && window.__officeVeil.mode('\(all ? "all" : "one")')")
-    }
 
     func foundSignIn() { onSignIn?(self) }
 

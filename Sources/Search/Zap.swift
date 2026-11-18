@@ -21,7 +21,7 @@ struct ZapBar: View {
                     Text("Zap")
                         .font(.system(size: 12.5, weight: .semibold))
                         .foregroundStyle(.white)
-                    Text(count == 0 ? (browser.zapAll ? "Click to remove all like it" : "Click anything to remove it") : (count == 1 ? "1 zap on this site" : "\(count) zaps on this site"))
+                    Text(count == 0 ? "Click anything to choose it" : (count == 1 ? "1 zap on this site" : "\(count) zaps on this site"))
                         .font(.system(size: 11))
                         .foregroundStyle(.white.opacity(0.6))
                         .contentTransition(.numericText())
@@ -30,13 +30,9 @@ struct ZapBar: View {
             }
             .padding(.trailing, 6)
 
-            HStack(spacing: 2) {
-                mode("This one", all: false)
-                mode("All like this", all: true)
-            }
-            .padding(2)
-            .background(Color.white.opacity(0.1), in: Capsule())
-            .help("Hold ⌥ to switch for a moment · ↑ ↓ to widen or narrow")
+            Text("↑ ↓ bigger or smaller")
+                .font(.system(size: 11))
+                .foregroundStyle(.white.opacity(0.45))
 
             button("Undo", icon: "arrow.uturn.backward", filled: false) { browser.undoHiding() }
                 .disabled(count == 0)
@@ -54,24 +50,6 @@ struct ZapBar: View {
         .shadow(color: .black.opacity(0.25), radius: 20, y: 8)
     }
 
-    private func mode(_ title: String, all: Bool) -> some View {
-        let on = browser.zapAll == all
-        return Button {
-            withAnimation(Motion.quick) { browser.zapAll = all }
-        } label: {
-            Text(title)
-                .font(.system(size: 11.5, weight: on ? .semibold : .regular))
-                .foregroundStyle(on ? Color(white: 0.09) : .white.opacity(0.7))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background {
-                    if on { Capsule().fill(.white) }
-                }
-                .contentShape(Capsule())
-        }
-        .buttonStyle(.plain)
-    }
-
     private func button(_ title: String, icon: String?, filled: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 4) {
@@ -87,3 +65,4 @@ struct ZapBar: View {
         .buttonStyle(.plain)
     }
 }
+

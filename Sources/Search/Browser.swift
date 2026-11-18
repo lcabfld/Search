@@ -788,15 +788,8 @@ final class Browser: NSObject, ObservableObject {
         veiling = true
         picking = tab
         tab.startPicking()
-        tab.zapMode(all: zapAll)
     }
 
-    /// Zap's other way: a click takes every element like the one pointed
-    /// at — all the ads, all the headlines — rather than that one. Kept
-    /// from one Zap to the next.
-    @Published var zapAll = false {
-        didSet { if zapAll != oldValue { picking?.zapMode(all: zapAll) } }
-    }
 
     private func stopHiding() {
         veiling = false
