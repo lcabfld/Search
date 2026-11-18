@@ -788,6 +788,14 @@ final class Browser: NSObject, ObservableObject {
         veiling = true
         picking = tab
         tab.startPicking()
+        tab.zapMode(all: zapAll)
+    }
+
+    /// Zap's other way: a click takes every element like the one pointed
+    /// at — all the ads, all the headlines — rather than that one. Kept
+    /// from one Zap to the next.
+    @Published var zapAll = false {
+        didSet { if zapAll != oldValue { picking?.zapMode(all: zapAll) } }
     }
 
     private func stopHiding() {
@@ -2268,7 +2276,28 @@ final class Browser: NSObject, ObservableObject {
 
     /// Clicking the tab you are already on turns it into the address, short
     /// form, ready to be changed.
-    @Published private(set) var editingTab: Tab.ID?
+    @Published private(set) var editingTab: Tab.ID? {
+        didSet { if editingTab == nil, inBar { inBar = false } }
+    }
+    /// True while that edit is happening in the address bar at the top of
+    /// the column (AddressPill) rather than in the tab's own row.
+    @Published private(set) var inBar = false
+    /// The tab whose own row shows the field: none while it is in the bar.
+    var rowEditing: Tab.ID? { inBar ? nil : editingTab }
+
+    /// A click on the address bar: the field is the bar itself, the address
+    /// in it selected, the list of places under it as you type. A blank tab
+    /// starts empty.
+    func beginBarEdit() {
+        guard let tab = active else { return }
+        renamingTab = false
+        tabDraft = tab.shownURL.map(Address.editable) ?? ""
+        tabOriginal = tabDraft
+        tabOffers = []
+        tabPicked = nil
+        inBar = true
+        editingTab = tab.id
+    }
     @Published var tabDraft = ""
     /// Set while that field is being used to name the tab rather than to go
     /// somewhere: the same field, the same keys, a different thing at the end.

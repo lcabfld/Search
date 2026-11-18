@@ -4,11 +4,13 @@
 # fetches.
 #
 #   ./build.sh                 debug-free release build, ad-hoc signed: runs here
-#   SEARCH_DEV=1 ./build.sh    the same as a dev build: yellow icon, named for
+#   SEARCH_DEV=1 ./build.sh    the same as a dev build: inverted icon, named for
 #                              the branch (Search-split-view from
 #                              claude/split-view-4a6927)
 #   SEARCH_DEV=1 SEARCH_FEATURE=name ./build.sh
 #                              the same, named Search-name
+#   SEARCH_DEV=1 SEARCH_NAME=name ./build.sh
+#                              the same, named just name
 #   ./build.sh release dmg     + build/Search.dmg, build/Search.zip and
 #                                build/appcast.json, signed with Developer ID
 #                                if there is one in the keychain
@@ -59,7 +61,7 @@ case "$ARCH" in
 esac
 APP="$OUT/Search.app"
 NAME="Search"
-# Asked for with SEARCH_DEV=1, a dev build, on a yellow plate and named for
+# Asked for with SEARCH_DEV=1, a dev build, on an inverted icon and named for
 # the feature it's built from: "Search-split-view" in the menu bar, the Dock
 # and ⌘Tab, so it's never taken for the installed app beside it, or for the
 # dev build from another worktree. Only the name people see changes. The
@@ -90,6 +92,10 @@ if [ "$DEV" = 1 ]; then
     ""|HEAD) SHOWN="$NAME Dev" ;;   # no branch to name it for
     *) SHOWN="$NAME-$FEATURE" ;;
   esac
+  # SEARCH_NAME, when given, is the whole name shown instead.
+  if [ -n "${SEARCH_NAME:-}" ]; then
+    SHOWN="$(printf '%s' "$SEARCH_NAME" | tr -cd 'A-Za-z0-9._ -')"
+  fi
 fi
 VERSION="$(tr -d '[:space:]' < VERSION)"
 # A build number that only ever goes up, so the updater can tell newer from

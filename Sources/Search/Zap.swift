@@ -1,0 +1,89 @@
+import SwiftUI
+
+/// What floats at the foot of the page while Zap is on: what mode this is,
+/// how many things are gone from the site, and the two ways out of a
+/// mistake — Undo, and Done.
+struct ZapBar: View {
+    @ObservedObject var browser: Browser
+    @ObservedObject private var curtain = Shared.curtain
+
+    private var count: Int { curtain.veils(on: browser.hereHost).count }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            HStack(spacing: 7) {
+                Image(systemName: "bolt.fill")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(Color(white: 0.09))
+                    .frame(width: 22, height: 22)
+                    .background(Color.white, in: Circle())
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Zap")
+                        .font(.system(size: 12.5, weight: .semibold))
+                        .foregroundStyle(.white)
+                    Text(count == 0 ? (browser.zapAll ? "Click to remove all like it" : "Click anything to remove it") : (count == 1 ? "1 zap on this site" : "\(count) zaps on this site"))
+                        .font(.system(size: 11))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .contentTransition(.numericText())
+                        .animation(Motion.quick, value: count)
+                }
+            }
+            .padding(.trailing, 6)
+
+            HStack(spacing: 2) {
+                mode("This one", all: false)
+                mode("All like this", all: true)
+            }
+            .padding(2)
+            .background(Color.white.opacity(0.1), in: Capsule())
+            .help("Hold ⌥ to switch for a moment · ↑ ↓ to widen or narrow")
+
+            button("Undo", icon: "arrow.uturn.backward", filled: false) { browser.undoHiding() }
+                .disabled(count == 0)
+                .opacity(count == 0 ? 0.4 : 1)
+            button("Done", icon: nil, filled: true) { browser.toggleHiding() }
+        }
+        .padding(.leading, 8)
+        .padding(.trailing, 6)
+        .padding(.vertical, 6)
+        .background {
+            Capsule()
+                .fill(Color(white: 0.09).opacity(0.94))
+                .overlay(Capsule().strokeBorder(.white.opacity(0.08), lineWidth: 1))
+        }
+        .shadow(color: .black.opacity(0.25), radius: 20, y: 8)
+    }
+
+    private func mode(_ title: String, all: Bool) -> some View {
+        let on = browser.zapAll == all
+        return Button {
+            withAnimation(Motion.quick) { browser.zapAll = all }
+        } label: {
+            Text(title)
+                .font(.system(size: 11.5, weight: on ? .semibold : .regular))
+                .foregroundStyle(on ? Color(white: 0.09) : .white.opacity(0.7))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background {
+                    if on { Capsule().fill(.white) }
+                }
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func button(_ title: String, icon: String?, filled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if let icon { Image(systemName: icon).font(.system(size: 10, weight: .semibold)) }
+                Text(title).font(.system(size: 12, weight: .medium))
+            }
+            .foregroundStyle(filled ? Color(white: 0.09) : .white)
+            .padding(.horizontal, 11)
+            .padding(.vertical, 6)
+            .background(filled ? AnyShapeStyle(Color.white) : AnyShapeStyle(Color.white.opacity(0.12)), in: Capsule())
+            .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}

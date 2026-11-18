@@ -192,7 +192,7 @@ private struct SplitTabHalf: View {
     private var hovering: Bool { hovered == tab.id }
     private var title: String { tab.label.isEmpty ? "New Tab" : tab.label }
     private var playing: Bool { !tab.loading && (tab.noisy || tab.muted) }
-    private var editing: Bool { browser.editingTab == tab.id }
+    private var editing: Bool { browser.rowEditing == tab.id }
     /// Where the page is, said on the half you're on (Settings › Tabs › Show
     /// the address on the tab you're on).
     private var rest: AtRest? { focused && !editing && !narrow ? AtRest.said(tab.restAddress, always: prefs.showsAddress) : nil }

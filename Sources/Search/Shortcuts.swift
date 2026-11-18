@@ -206,8 +206,8 @@ struct Command: Identifiable {
         // No key until you give one: Arc's ⇧⌘2 is a shifted digit, which
         // the menus read as a different character on many keyboards.
         Command("view.capture", "Capture…", .view, nil) { $0.toggleSnap() },
-        Command("view.hide", "Hide Elements…", .view, KeyCombo("h", shift: true)) { $0.toggleHiding() },
-        Command("view.hidden", "Hidden on This Site…", .view, KeyCombo("u", shift: true)) { $0.reviewing.toggle() },
+        Command("view.hide", "Zap Elements…", .view, KeyCombo("h", shift: true)) { $0.toggleHiding() },
+        Command("view.hidden", "Zapped on This Site…", .view, KeyCombo("u", shift: true)) { $0.reviewing.toggle() },
         Command("view.style", "Edit Site Style…", .view, nil) { $0.editSiteStyle() },
         Command("view.zoomIn", "Zoom In", .view, KeyCombo("+")) { $0.zoom(by: 1.1) },
         Command("view.zoomOut", "Zoom Out", .view, KeyCombo("-")) { $0.zoom(by: 1 / 1.1) },

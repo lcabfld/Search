@@ -139,6 +139,11 @@ struct SideBar: View {
                         Spacer(minLength: 0)
                     }
                     .frame(height: Metrics.strip)
+
+                    // The address, as Arc keeps it: under the doors, above
+                    // the pins. A click raises the field in the middle.
+                    AddressPill(browser: browser)
+                        .padding(.bottom, 8)
                 }
 
                 // The spaces side by side, as pages: two fingers sideways move
@@ -1361,7 +1366,7 @@ private struct SideRow: View, Equatable {
         self.pill = pill
         self.close = close
         self.interactive = interactive
-        editing = browser.editingTab == tab.id
+        editing = browser.rowEditing == tab.id
         selected = browser.selectedTabIDs.contains(tab.id)
         pickedAmongOthers = browser.isPickedAmongOthers(tab)
         peek = browser.peekFrom == tab.id ? browser.peekTab : nil

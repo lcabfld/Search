@@ -221,9 +221,9 @@ struct SearchApp: App {
                         .shortcut("view.capture")
                         .disabled(!(browser.active?.isWeb ?? false))
                 }
-                Button("Hide Elements…") { browser.toggleHiding() }
+                Button("Zap Elements…") { browser.toggleHiding() }
                     .shortcut("view.hide")
-                Button("Hidden on This Site…") { browser.reviewing.toggle() }
+                Button("Zapped on This Site…") { browser.reviewing.toggle() }
                     .shortcut("view.hidden")
                 // Only once it is on (Settings › Browsing › Pages).
                 if browser.prefs.sitesStyles {
@@ -738,7 +738,7 @@ struct ContentView: View {
             }
             StoreOffer(browser: browser)
             if browser.veiling {
-                hint("Click anything to hide it   ⌘Z undo   esc done")
+                ZapBar(browser: browser)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }

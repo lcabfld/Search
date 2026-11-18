@@ -709,7 +709,7 @@ private struct TabPill: View, Equatable {
         self.room = room
         self.pill = pill
         self.close = close
-        editing = browser.editingTab == tab.id
+        editing = browser.rowEditing == tab.id
         lettering = browser.editingPin == tab.id
         selected = browser.selectedTabIDs.contains(tab.id)
         refusals = browser.refusals
