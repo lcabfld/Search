@@ -166,7 +166,8 @@ enum Veiling {
       // Zap, as Arc has it. Pointing outlines what is under the pointer;
       // a click chooses it, tints it and everything related to it, and puts
       // a card beside it: Zap this, Zap all related elements — a button that
-      // is also a slider, dragged to say how far "related" reaches — and
+      // is also a slider, the pointer moved across it saying how far
+      // "related" reaches, and a click zapping what it shows — and
       // Cancel, over the count and the rule that would be written.
       var frame = null, tag = null, edge = null, card = null, target = null, live = false;
       // What was clicked, while its card is up.
@@ -183,8 +184,6 @@ enum Veiling {
       // The family's other boxes, drawn from a pool so a page of a hundred
       // headlines isn't a hundred new elements on every move.
       var pool = [];
-      // A press on the slider, until it is let go.
-      var sliding = null;
       var FONT = '-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif';
 
       var bolt = 'data:image/svg+xml,' + encodeURIComponent(
@@ -322,35 +321,37 @@ enum Veiling {
 
       function makeCard() {
         if (card) return card;
-        card = el('div', 'position:fixed;z-index:2147483647;display:flex;flex-direction:column;gap:8px;' +
-          'padding:8px;border-radius:16px;background:rgba(242,242,242,.88);' +
-          '-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);' +
-          'box-shadow:0 18px 48px rgba(0,0,0,.24),0 0 0 .5px rgba(0,0,0,.14),inset 0 .5px 0 rgba(255,255,255,.8);' +
+        // The same as Zap's bar at the foot of the window: near black, a
+        // hairline of white round it, pills, the one to press filled white.
+        card = el('div', 'position:fixed;z-index:2147483647;display:flex;flex-direction:column;gap:6px;' +
+          'padding:6px;border-radius:20px;background:rgba(23,23,23,.94);' +
+          '-webkit-backdrop-filter:blur(20px) saturate(1.6);backdrop-filter:blur(20px) saturate(1.6);' +
+          'box-shadow:0 8px 20px rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.08);' +
           'opacity:0;transform:translateY(4px) scale(.98);transition:opacity .14s,transform .18s cubic-bezier(.2,.8,.2,1);' +
-          'cursor:default;width:min(520px,calc(100vw - 24px))');
-        var row = el('div', 'display:flex;gap:8px;align-items:stretch');
-        var button = 'display:flex;align-items:center;justify-content:center;height:40px;padding:0 15px;' +
-          'border-radius:11px;font-size:15px;font-weight:500;color:#fff;white-space:nowrap;cursor:pointer;' +
-          'box-shadow:inset 0 .5px 0 rgba(255,255,255,.35),0 1px 2px rgba(0,0,0,.12)';
-        parts.one = el('div', button + ';background:linear-gradient(#ff4b45,#ec2018)', 'Zap this');
+          'cursor:default;width:min(440px,calc(100vw - 24px))');
+        var row = el('div', 'display:flex;gap:6px;align-items:stretch');
+        var button = 'display:flex;align-items:center;justify-content:center;height:30px;padding:0 12px;' +
+          'border-radius:999px;font-size:12px;font-weight:500;color:#fff;white-space:nowrap;cursor:pointer;' +
+          'background:rgba(255,255,255,.12)';
+        parts.one = el('div', button + ';background:#fff;color:#171717', 'Zap this');
         parts.one.setAttribute('data-zap', 'one');
         parts.all = el('div', button + ';position:relative;flex:1;overflow:hidden;justify-content:flex-start;' +
-          'background:linear-gradient(#a3a3a3,#8f8f8f);cursor:ew-resize');
+          'cursor:ew-resize');
         parts.all.setAttribute('data-zap', 'all');
-        parts.fill = el('div', 'position:absolute;left:0;top:0;bottom:0;width:0;' +
-          'background:linear-gradient(90deg,#ffa31a,#ff8a00);transition:width .08s');
-        parts.label = el('div', 'position:relative;color:#fff;font-size:15px;font-weight:500;' +
-          'text-shadow:0 1px 1px rgba(0,0,0,.12);white-space:nowrap;overflow:hidden;text-overflow:ellipsis', 'Zap all related elements');
+        parts.fill = el('div', 'position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;' +
+          'background:rgba(255,255,255,.28);transition:width .08s');
+        parts.label = el('div', 'position:relative;color:#fff;font-size:12px;font-weight:500;' +
+          'white-space:nowrap;overflow:hidden;text-overflow:ellipsis', 'Zap all related elements');
         parts.all.appendChild(parts.fill);
         parts.all.appendChild(parts.label);
-        parts.cancel = el('div', button + ';background:linear-gradient(#6e6e6e,#5c5c5c)', 'Cancel');
+        parts.cancel = el('div', button, 'Cancel');
         parts.cancel.setAttribute('data-zap', 'cancel');
         row.appendChild(parts.one);
         row.appendChild(parts.all);
         row.appendChild(parts.cancel);
-        var info = el('div', 'display:flex;gap:10px;align-items:baseline;padding:2px 8px 4px;min-width:0');
-        parts.count = el('div', 'font-size:12.5px;font-weight:600;color:#6b6b6b;flex:none;font-variant-numeric:tabular-nums');
-        parts.rule = el('div', 'font:12.5px ui-monospace,"SF Mono",Menlo,monospace;color:#8a8a8a;' +
+        var info = el('div', 'display:flex;gap:8px;align-items:baseline;padding:0 10px 3px;min-width:0');
+        parts.count = el('div', 'font-size:11px;font-weight:600;color:rgba(255,255,255,.7);flex:none;font-variant-numeric:tabular-nums');
+        parts.rule = el('div', 'font:11px ui-monospace,"SF Mono",Menlo,monospace;color:rgba(255,255,255,.4);' +
           'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1');
         info.appendChild(parts.count);
         info.appendChild(parts.rule);
@@ -403,7 +404,6 @@ enum Veiling {
 
       function unchoose() {
         chosen = null;
-        sliding = null;
         cached = null;
         if (card) {
           card.style.setProperty('opacity', '0', 'important');
@@ -464,12 +464,15 @@ enum Veiling {
 
       function onMove(e) {
         if (!live) return;
-        if (sliding) {
-          if (Math.abs(e.clientX - sliding.x) > 3) sliding.moved = true;
-          if (sliding.moved) slideTo(e.clientX);
+        if (chosen) {
+          // The bar follows the pointer across it: no press, no drag.
+          if (parts.all && rungAt(chosen)) {
+            var bar = parts.all.getBoundingClientRect();
+            if (e.clientX >= bar.left && e.clientX <= bar.right &&
+                e.clientY >= bar.top && e.clientY <= bar.bottom) slideTo(e.clientX);
+          }
           return;
         }
-        if (chosen) return;
         var node = document.elementFromPoint(e.clientX, e.clientY);
         if (!usable(node)) return hideBox();
         if (node !== target) trail = [];
@@ -538,8 +541,8 @@ enum Veiling {
           if (what === 'one') zap(chosen, null);
           else if (what === 'cancel') unchoose();
           else if (what === 'all' && rungAt(chosen)) {
-            sliding = { x: e.clientX, moved: false };
             slideTo(e.clientX);
+            zap(chosen, rungAt(chosen));
           }
           return;
         }
@@ -559,11 +562,6 @@ enum Veiling {
       function onRelease(e) {
         if (!live) return;
         stop(e);
-        if (!sliding) return;
-        var tapped = !sliding.moved;
-        sliding = null;
-        // A click on the bar zaps the family it shows; a drag only sets it.
-        if (tapped && chosen) zap(chosen, rungAt(chosen));
       }
 
       var presses = ['mousedown', 'mouseup', 'click', 'dblclick', 'contextmenu', 'touchstart'];
